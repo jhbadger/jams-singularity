@@ -4,13 +4,16 @@ From: library://tru/default/ubuntu19.04-minimal
 %environment
     LC_ALL="C"
     export LC_ALL
+    export PATH=/usr/local/JAMS_BW/libexec:/usr/local/JAMS_BW/BWlibexec:$PATH
+    export PATH=$PATH:/usr/local/MEGAHIT-1.2.8-Linux-x86_64-static/bin/
+    export TMP=~/
 
 %post
     echo "Hello from inside the container"
     export DEBIAN_FRONTEND=noninteractive
     apt-get update
     ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-    apt-get -y install tzdata zile r-base r-cran-tidyverse locales seqtk git trimmomatic samtools 
+    apt-get -y install tzdata zile r-base prokka locales seqtk git trimmomatic samtools 
     apt-get -y install bedops bedtools sra-toolkit libcurl4-openssl-dev 
     apt-get -y install libxml2-dev libssl-dev
     dpkg-reconfigure --frontend noninteractive tzdata
@@ -18,6 +21,8 @@ From: library://tru/default/ubuntu19.04-minimal
     Rscript -e 'BiocManager::install(c("dada2", "metagenomeSeq","ComplexHeatmap","phyloseq"))' 
     Rscript -e 'BiocManager::install(c("genefilter", "HybridMTest"))'
     cd /usr/local
+    wget https://github.com/voutcn/megahit/releases/download/v1.2.8/MEGAHIT-1.2.8-Linux-x86_64-static.tar.gz
+    tar zvxf MEGAHIT-1.2.8-Linux-x86_64-static.tar.gz
     git clone https://github.com/johnmcculloch/JAMS_BW.git
     Rscript -e 'devtools::install("JAMS_BW")'
     apt-get clean
