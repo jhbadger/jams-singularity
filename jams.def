@@ -6,15 +6,16 @@ From: library://tru/default/ubuntu19.04-minimal
     export LC_ALL
     export PATH=/usr/local/JAMS_BW/libexec:/usr/local/JAMS_BW/BWlibexec:$PATH
     export PATH=$PATH:/usr/local/MEGAHIT-1.2.8-Linux-x86_64-static/bin/
-    export TMP=~/
+    export PATH=$PATH:/usr/local/kraken2/bin
+    export TMP=$HOMEz
 
 %post
     echo "Hello from inside the container"
     export DEBIAN_FRONTEND=noninteractive
     apt-get update
     ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-    apt-get -y install tzdata zile r-base prokka locales seqtk git trimmomatic samtools 
-    apt-get -y install bedops bedtools sra-toolkit libcurl4-openssl-dev 
+    apt-get -y install tzdata zile wget r-base prokka locales seqtk git trimmomatic samtools 
+    apt-get -y install spades bedops bedtools sra-toolkit libcurl4-openssl-dev
     apt-get -y install libxml2-dev libssl-dev
     dpkg-reconfigure --frontend noninteractive tzdata
     Rscript -e 'install.packages(c("BiocManager","devtools"))'
@@ -23,6 +24,10 @@ From: library://tru/default/ubuntu19.04-minimal
     cd /usr/local
     wget https://github.com/voutcn/megahit/releases/download/v1.2.8/MEGAHIT-1.2.8-Linux-x86_64-static.tar.gz
     tar zvxf MEGAHIT-1.2.8-Linux-x86_64-static.tar.gz
+    git clone https://github.com/DerrickWood/kraken2.git
+    cd kraken2
+    ./install_kraken2.sh /usr/local/kraken2/bin
+    cd /usr/local
     git clone https://github.com/johnmcculloch/JAMS_BW.git
     Rscript -e 'devtools::install("JAMS_BW")'
     apt-get clean
