@@ -1,0 +1,23 @@
+Bootstrap: library
+From: library://tru/default/ubuntu19.04-minimal
+
+%environment
+    LC_ALL="C"
+    export LC_ALL
+
+%post
+    echo "Hello from inside the container"
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+    apt-get -y install tzdata zile r-base r-cran-tidyverse locales seqtk git trimmomatic samtools 
+    apt-get -y install bedops bedtools sra-toolkit libcurl4-openssl-dev 
+    apt-get -y install libxml2-dev libssl-dev
+    dpkg-reconfigure --frontend noninteractive tzdata
+    Rscript -e 'install.packages(c("BiocManager","devtools"))'
+    Rscript -e 'BiocManager::install(c("dada2", "metagenomeSeq","ComplexHeatmap","phyloseq"))' 
+    Rscript -e 'BiocManager::install(c("genefilter", "HybridMTest"))'
+    cd /usr/local
+    git clone https://github.com/johnmcculloch/JAMS_BW.git
+    Rscript -e 'devtools::install("JAMS_BW")'
+    apt-get clean
