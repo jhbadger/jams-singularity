@@ -28,6 +28,10 @@ From: library://tru/default/ubuntu19.04-minimal
     cd kraken2
     ./install_kraken2.sh /usr/local/kraken2/bin
     cd /usr/local
+    rm MEGAHIT-1.2.8-Linux-x86_64-static.tar.gz
+    wget https://hpc.nih.gov/~mccullochja/JAMSdb_1560825660.tar.gz
+    tar xvfz JAMSdb_1560825660.tar.gz
+    rm JAMSdb_1560825660.tar.gz
     git clone https://github.com/johnmcculloch/JAMS_BW.git
     Rscript -e 'devtools::install("JAMS_BW")'
     apt-get clean
