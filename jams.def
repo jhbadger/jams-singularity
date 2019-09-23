@@ -7,16 +7,15 @@ From: library://tru/default/ubuntu19.04-minimal
     export PATH=/usr/local/JAMS_BW/libexec:/usr/local/JAMS_BW/BWlibexec:$PATH
     export PATH=$PATH:/usr/local/MEGAHIT-1.2.8-Linux-x86_64-static/bin/
     export PATH=$PATH:/usr/local/kraken2/bin
-    export TMP=$HOMEz
+    export TMP=$HOME
 
 %post
-    echo "Hello from inside the container"
     export DEBIAN_FRONTEND=noninteractive
     apt-get update
     ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
     apt-get -y install tzdata zile wget r-base prokka locales seqtk git trimmomatic samtools 
     apt-get -y install spades bedops bedtools sra-toolkit libcurl4-openssl-dev
-    apt-get -y install libxml2-dev libssl-dev
+    apt-get -y install pigz bowtie2 libxml2-dev libssl-dev
     dpkg-reconfigure --frontend noninteractive tzdata
     Rscript -e 'install.packages(c("BiocManager","devtools"))'
     Rscript -e 'BiocManager::install(c("dada2", "metagenomeSeq","ComplexHeatmap","phyloseq"))' 
@@ -29,9 +28,14 @@ From: library://tru/default/ubuntu19.04-minimal
     ./install_kraken2.sh /usr/local/kraken2/bin
     cd /usr/local
     rm MEGAHIT-1.2.8-Linux-x86_64-static.tar.gz
+    mkdir /usr/local/jamsdb
+    cd /usr/local/jamsdb
     wget https://hpc.nih.gov/~mccullochja/JAMSdb_1560825660.tar.gz
     tar xvfz JAMSdb_1560825660.tar.gz
     rm JAMSdb_1560825660.tar.gz
+    echo '#!/bin/bash\nexec java  -jar /usr/share/java/trimmomatic.jar "$@"\n' > /usr/bin/trimmomatic
+    chmod a+x /usr/bin/trimmomatic
+    cd /usr/local
     git clone https://github.com/johnmcculloch/JAMS_BW.git
     Rscript -e 'devtools::install("JAMS_BW")'
     apt-get clean
