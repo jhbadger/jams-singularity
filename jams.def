@@ -6,19 +6,41 @@ From: library://tru/default/ubuntu19.04-minimal
     export LC_ALL
     export PATH=/usr/local/JAMS_BW/libexec:/usr/local/JAMS_BW/BWlibexec:$PATH
     export PATH=$PATH:/usr/local/MEGAHIT-1.2.8-Linux-x86_64-static/bin/
-    export PATH=$PATH:/usr/local/kraken2/bin
+    export PATH=$PATH:/usr/local/kraken2/bin:/usr/local/prokka/bin
     export TMP=$HOME
+    export SLURM_CPUS_PER_TASK=16
 
 %post
     export DEBIAN_FRONTEND=noninteractive
     apt-get update
+    apt install -y git zile wget build-essential libssl-dev uuid-dev libseccomp-dev pkg-config squashfs-tools cryptsetup
+    export VERSION=1.13 OS=linux ARCH=amd64
+    wget -O /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz https://dl.google.com/go/go${VERSION}.${OS}-${ARCH}.tar.gz
+    tar -C /usr/local -xzf /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
+    rm /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
+    ln -s /usr/local/go/bin/* /usr/local/bin
+    cd /usr/local
+    git clone https://github.com/sylabs/singularity.git
+    cd singularity
+    ./mconfig
+    cd ./builddir
+    make 
+    make install
     ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-    apt-get -y install tzdata zile wget r-base prokka locales seqtk git trimmomatic samtools 
+    apt-get -y install apt-utils
+    apt-get -y install tzdata zile wget r-base locales seqtk git trimmomatic samtools 
     apt-get -y install spades bedops bedtools sra-toolkit libcurl4-openssl-dev
-    apt-get -y install pigz bowtie2 libxml2-dev libssl-dev
+    apt-get -y install pigz bowtie2 libxml2-dev libssl-dev r-cran-tidyverse r-bioc-phyloseq
+    apt-get -y install libdatetime-perl libxml-simple-perl libdigest-md5-perl git default-jre bioperl
+    git clone https://github.com/tseemann/prokka.git /usr/local/prokka
+    /usr/local/prokka/bin/prokka --setupdb
     dpkg-reconfigure --frontend noninteractive tzdata
     Rscript -e 'install.packages(c("BiocManager","devtools"))'
-    Rscript -e 'BiocManager::install(c("dada2", "metagenomeSeq","ComplexHeatmap","phyloseq"))' 
+    Rscript -e 'devtools::install_github("barkasn/fastSave")'
+    Rscript -e 'devtools::install_github("AckerDWM/gg3D")'
+    Rscript -e 'devtools::install_github("cran/glmnet")'
+    Rscript -e 'devtools::install_github("HCBravoLab/metagenomeSeq")'
+    Rscript -e 'BiocManager::install(c("dada2", "ComplexHeatmap"))' 
     Rscript -e 'BiocManager::install(c("genefilter", "HybridMTest"))'
     cd /usr/local
     wget https://github.com/voutcn/megahit/releases/download/v1.2.8/MEGAHIT-1.2.8-Linux-x86_64-static.tar.gz
@@ -28,11 +50,6 @@ From: library://tru/default/ubuntu19.04-minimal
     ./install_kraken2.sh /usr/local/kraken2/bin
     cd /usr/local
     rm MEGAHIT-1.2.8-Linux-x86_64-static.tar.gz
-    mkdir /usr/local/jamsdb
-    cd /usr/local/jamsdb
-    wget https://hpc.nih.gov/~mccullochja/JAMSdb_1560825660.tar.gz
-    tar xvfz JAMSdb_1560825660.tar.gz
-    rm JAMSdb_1560825660.tar.gz
     echo '#!/bin/bash\nexec java  -jar /usr/share/java/trimmomatic.jar "$@"\n' > /usr/bin/trimmomatic
     chmod a+x /usr/bin/trimmomatic
     cd /usr/local
