@@ -1,5 +1,5 @@
-Bootstrap: library
-From: library://tru/default/ubuntu19.04-minimal
+BootStrap: docker 
+From: bioconductor/bioconductor_docker:devel
 
 %environment
     LC_ALL="C"
@@ -11,37 +11,24 @@ From: library://tru/default/ubuntu19.04-minimal
     export SLURM_CPUS_PER_TASK=16
 
 %post
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get update
-    apt install -y git zile wget build-essential libssl-dev uuid-dev libseccomp-dev pkg-config squashfs-tools cryptsetup
-    export VERSION=1.13 OS=linux ARCH=amd64
-    wget -O /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz https://dl.google.com/go/go${VERSION}.${OS}-${ARCH}.tar.gz
-    tar -C /usr/local -xzf /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
-    rm /tmp/go${VERSION}.${OS}-${ARCH}.tar.gz
-    ln -s /usr/local/go/bin/* /usr/local/bin
-    cd /usr/local
-    git clone https://github.com/sylabs/singularity.git
-    cd singularity
-    ./mconfig
-    cd ./builddir
-    make 
-    make install
-    ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
-    apt-get -y install apt-utils
-    apt-get -y install tzdata zile wget r-base locales seqtk git trimmomatic samtools 
-    apt-get -y install spades bedops bedtools sra-toolkit libcurl4-openssl-dev
-    apt-get -y install pigz bowtie2 libxml2-dev libssl-dev r-cran-tidyverse r-bioc-phyloseq
-    apt-get -y install libdatetime-perl libxml-simple-perl libdigest-md5-perl git default-jre bioperl
-    git clone https://github.com/tseemann/prokka.git /usr/local/prokka
-    /usr/local/prokka/bin/prokka --setupdb
-    dpkg-reconfigure --frontend noninteractive tzdata
-    Rscript -e 'install.packages(c("BiocManager","devtools"))'
+    Rscript -e 'BiocManager::install(c("dada2", "ComplexHeatmap"))' 
+    Rscript -e 'BiocManager::install(c("genefilter", "HybridMTest"))'
     Rscript -e 'devtools::install_github("barkasn/fastSave")'
     Rscript -e 'devtools::install_github("AckerDWM/gg3D")'
     Rscript -e 'devtools::install_github("cran/glmnet")'
     Rscript -e 'devtools::install_github("HCBravoLab/metagenomeSeq")'
-    Rscript -e 'BiocManager::install(c("dada2", "ComplexHeatmap"))' 
-    Rscript -e 'BiocManager::install(c("genefilter", "HybridMTest"))'
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update
+    apt install -y git zile wget build-essential libssl-dev uuid-dev libseccomp-dev pkg-config squashfs-tools cryptsetup
+    ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
+    apt-get -y install apt-utils
+    apt-get -y install tzdata zile wget locales seqtk git trimmomatic samtools 
+    apt-get -y install spades bedops bedtools sra-toolkit libcurl4-openssl-dev
+    apt-get -y install pigz bowtie2 libxml2-dev libssl-dev
+    apt-get -y install libdatetime-perl libxml-simple-perl libdigest-md5-perl git default-jre bioperl
+    git clone https://github.com/tseemann/prokka.git /usr/local/prokka
+    /usr/local/prokka/bin/prokka --setupdb
+    dpkg-reconfigure --frontend noninteractive tzdata
     cd /usr/local
     wget https://github.com/voutcn/megahit/releases/download/v1.2.8/MEGAHIT-1.2.8-Linux-x86_64-static.tar.gz
     tar zvxf MEGAHIT-1.2.8-Linux-x86_64-static.tar.gz
